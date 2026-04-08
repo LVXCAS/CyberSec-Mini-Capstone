@@ -1,7 +1,7 @@
 # Project State: CyberSec AI Capstone
 
 **Last updated:** 2026-04-08
-**Session:** Plan 01-03 complete
+**Session:** Plan 01-04 complete — Phase 1 Foundation complete
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core value:** Autonomous AI agents that reason about cybersecurity decisions and execute real commands on real infrastructure — proving AI can independently attack and defend systems without human guidance.
 
-**Current focus:** Phase 1 — Foundation (infrastructure, KoboldCpp, orchestrator, single-agent loop)
+**Current focus:** Phase 1 complete. Next: Phase 2 — Agent Skills + Game Mechanics
 
 **Deadline:** 2026-04-10 (2 days from now)
 
@@ -20,13 +20,13 @@
 | Field | Value |
 |-------|-------|
 | Milestone | v1 |
-| Phase | 1 — Foundation |
-| Plan | 01-03 complete |
-| Status | In progress |
-| Last activity | 2026-04-08 - Completed 01-03-PLAN.md |
-| Progress | ███░░░░░░░ 25% |
+| Phase | 1 — Foundation (complete) |
+| Plan | 01-04 complete (4/4) |
+| Status | Phase 1 complete |
+| Last activity | 2026-04-08 - Completed 01-04-PLAN.md |
+| Progress | ████░░░░░░ 33% |
 
-**Phase progress:** 0/3 phases complete (3/4 plans done in Phase 1)
+**Phase progress:** 1/3 phases complete (4/4 plans done in Phase 1)
 
 ---
 
@@ -37,7 +37,7 @@
 | Requirements defined | 27 |
 | Requirements mapped | 27 |
 | Requirements complete | 10 |
-| Phases complete | 0/3 |
+| Phases complete | 1/3 |
 
 ---
 
@@ -63,6 +63,8 @@
 | FastAPI orchestrator | Async, Pydantic-native, OpenAPI docs useful for demo | Confirmed |
 | SQLite for game log | Zero-dependency, file-based, sufficient for bounded simulation | Confirmed |
 | Rich for terminal display | Faster to ship than web frontend; equally compelling for capstone | Confirmed |
+| List for executed_commands | JSON serialisation; LangGraph state must be serialisable | Confirmed |
+| Regex fallback for LLM parsing | Gemma 4 may not always produce clean JSON; graceful degradation needed | Confirmed |
 
 ### Critical Unknowns (Validate in Phase 1 First)
 
@@ -105,11 +107,12 @@ None currently.
 - 2026-04-08: Completed 01-01 (Docker infrastructure) - 2 tasks, 2 commits
 - 2026-04-08: Completed 01-02 (KoboldCpp + Gemma 4 inference) - 2 tasks + checkpoint, 2 commits
 - 2026-04-08: Completed 01-03 (Orchestrator + safety filter + SSH + SQLite) - 2 tasks, 2 commits
+- 2026-04-08: Completed 01-04 (Autonomous agent reasoning loop) - 2 tasks, 2 commits — Phase 1 complete
 
 Last session: 2026-04-08
-Stopped at: Completed 01-03-PLAN.md
-Resume file: .planning/phases/01-foundation/01-04-PLAN.md
+Stopped at: Completed 01-04-PLAN.md — Phase 1 Foundation complete
+Resume file: Next phase plans
 
 ---
 *State initialized: 2026-04-08*
-*Last updated: 2026-04-08 — plan 01-03 complete*
+*Last updated: 2026-04-08 — plan 01-04 complete, Phase 1 Foundation complete*
