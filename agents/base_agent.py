@@ -274,9 +274,10 @@ def act_node(state: AgentState) -> dict:
             timeout=30,
         )
         result = resp.json()
-        exit_code = result.get("exit_code", -1)
-        stdout = result.get("stdout", "")
-        was_blocked = result.get("blocked", False)
+        was_blocked = not result.get("allowed", True)
+        cmd_result = result.get("result") or {}
+        exit_code = cmd_result.get("exit_code", -1)
+        stdout = cmd_result.get("stdout", "")
     except requests.RequestException as e:
         stdout = f"Orchestrator request failed: {e}"
 
