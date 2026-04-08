@@ -1,7 +1,7 @@
 # Project State: CyberSec AI Capstone
 
 **Last updated:** 2026-04-08
-**Session:** Plan 01-01 complete
+**Session:** Plan 01-03 complete
 
 ---
 
@@ -21,12 +21,12 @@
 |-------|-------|
 | Milestone | v1 |
 | Phase | 1 — Foundation |
-| Plan | 01-01 complete |
+| Plan | 01-03 complete |
 | Status | In progress |
-| Last activity | 2026-04-08 - Completed 01-01-PLAN.md |
-| Progress | █░░░░░░░░░ 8% |
+| Last activity | 2026-04-08 - Completed 01-03-PLAN.md |
+| Progress | ███░░░░░░░ 25% |
 
-**Phase progress:** 0/3 phases complete (1/4 plans done in Phase 1)
+**Phase progress:** 0/3 phases complete (3/4 plans done in Phase 1)
 
 ---
 
@@ -36,7 +36,7 @@
 |--------|-------|
 | Requirements defined | 27 |
 | Requirements mapped | 27 |
-| Requirements complete | 3 |
+| Requirements complete | 10 |
 | Phases complete | 0/3 |
 
 ---
@@ -53,7 +53,11 @@
 | Simplified container passwords | Special chars unreliable in Docker build chpasswd | Confirmed |
 | INFRA-04 (reset) in Phase 3 | Reset script belongs to demo readiness, not infrastructure skeleton | Confirmed |
 | Kobalt over Ollama | K80 CUDA 3.7 — Ollama and vLLM require CUDA 8.0+ | Confirmed |
+| E4B variant approved | User approved at 01-02 checkpoint; fits 24GB K80 VRAM | Confirmed |
 | Hub-and-spoke orchestrator | Agents never touch battleground directly — orchestrator proxies all commands | Confirmed |
+| Blocklist safety filter | Demo needs visible blocked commands; allowlist too restrictive for exploratory agents | Confirmed |
+| 4096 char output truncation | Prevents LLM context explosion from large command outputs | Confirmed |
+| WAL mode SQLite | Allows concurrent reads from multiple agents without blocking | Confirmed |
 | Sequential inference | One KoboldCpp instance serves both agents sequentially — only safe option for 24GB K80 | Confirmed |
 | LangGraph for agent loop | Explicit, auditable state graph; auditable, replayable vs CrewAI's opaque roles | Confirmed |
 | FastAPI orchestrator | Async, Pydantic-native, OpenAPI docs useful for demo | Confirmed |
@@ -93,17 +97,19 @@ None currently.
 
 1. Read this file for current position
 2. Read `/Users/lvxcas/Cyber Capstone/.planning/ROADMAP.md` for phase goals and success criteria
-3. Next plan: `.planning/phases/01-foundation/01-02-PLAN.md`
+3. Next plan: `.planning/phases/01-foundation/01-04-PLAN.md`
 
 ### Session Log
 
 - 2026-04-08: Project initialized, roadmap finalized
 - 2026-04-08: Completed 01-01 (Docker infrastructure) - 2 tasks, 2 commits
+- 2026-04-08: Completed 01-02 (KoboldCpp + Gemma 4 inference) - 2 tasks + checkpoint, 2 commits
+- 2026-04-08: Completed 01-03 (Orchestrator + safety filter + SSH + SQLite) - 2 tasks, 2 commits
 
 Last session: 2026-04-08
-Stopped at: Completed 01-01-PLAN.md
-Resume file: .planning/phases/01-foundation/01-02-PLAN.md
+Stopped at: Completed 01-03-PLAN.md
+Resume file: .planning/phases/01-foundation/01-04-PLAN.md
 
 ---
 *State initialized: 2026-04-08*
-*Last updated: 2026-04-08 — plan 01-01 complete*
+*Last updated: 2026-04-08 — plan 01-03 complete*
