@@ -15,8 +15,9 @@ services:
       - orchestrator-net
     expose:
       - "22"
+      - "80"
     healthcheck:
-      test: ["CMD", "bash", "-c", "ssh -o ConnectTimeout=2 -o StrictHostKeyChecking=no -o BatchMode=yes localhost 2>&1 | grep -v 'Connection refused'"]
+      test: ["CMD", "bash", "-c", "echo | curl -s telnet://localhost:22 | grep -q SSH || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
