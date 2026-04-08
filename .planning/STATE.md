@@ -1,7 +1,7 @@
 # Project State: CyberSec AI Capstone
 
 **Last updated:** 2026-04-08
-**Session:** Plan 01-06 complete — gap closure (network isolation test) — Phase 1 fully complete
+**Session:** Plan 01-07 complete — gap closure (act_node response parsing fix + regression tests)
 
 ---
 
@@ -21,12 +21,12 @@
 |-------|-------|
 | Milestone | v1 |
 | Phase | 1 — Foundation (complete) |
-| Plan | 01-06 complete (gap closure 2/2) |
+| Plan | 01-07 complete (gap closure 3/3) |
 | Status | Phase 1 complete — ready for Phase 2 |
-| Last activity | 2026-04-08 - Completed 01-06-PLAN.md |
-| Progress | ████░░░░░░ 40% |
+| Last activity | 2026-04-08 - Completed 01-07-PLAN.md |
+| Progress | ████░░░░░░ 43% |
 
-**Phase progress:** Phase 1 fully complete (all 6 plans including gap closures done)
+**Phase progress:** Phase 1 fully complete (all 7 plans including gap closures done)
 
 ---
 
@@ -47,6 +47,7 @@
 
 | Decision | Rationale | Status |
 |----------|-----------|--------|
+| Mock _log_decision in host tests | Docker-only /app/data path; mocking isolates parsing logic | Confirmed |
 | 3-phase compression (from 6) | 2-day deadline demands aggressive phase combining | Confirmed |
 | Parallel execution within phases | Red/blue skills and game mechanics built simultaneously in Phase 2 | Confirmed |
 | mysql_native_password for PHP | caching_sha2_password fails for www-data socket connections | Confirmed |
