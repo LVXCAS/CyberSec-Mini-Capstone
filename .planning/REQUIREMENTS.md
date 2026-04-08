@@ -7,19 +7,19 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Docker Compose setup with 3 containers (red-agent, blue-agent, battleground) on isolated networks
-- [ ] **INFRA-02**: KoboldCpp running Gemma 4 (e2b or e4b) on K80 GPU serving both agents via OpenAI-compatible API
-- [ ] **INFRA-03**: SSH-based command execution from agents to battleground via orchestrator safety filter
+- [x] **INFRA-01**: Docker Compose setup with 3 containers (red-agent, blue-agent, battleground) on isolated networks
+- [x] **INFRA-02**: KoboldCpp running Gemma 4 (e2b or e4b) on K80 GPU serving both agents via OpenAI-compatible API
+- [x] **INFRA-03**: SSH-based command execution from agents to battleground via orchestrator safety filter
 - [ ] **INFRA-04**: One-command game reset that returns all containers to fresh state
-- [ ] **INFRA-05**: Agent safety filter — orchestrator validates/sanitizes commands before execution (prevents container escape)
+- [x] **INFRA-05**: Agent safety filter — orchestrator validates/sanitizes commands before execution (prevents container escape)
 
 ### Agent Core
 
-- [ ] **AGNT-01**: Autonomous reasoning loop (observe → reason → act → observe) powered by Gemma 4
+- [x] **AGNT-01**: Autonomous reasoning loop (observe → reason → act → observe) powered by Gemma 4
 - [ ] **AGNT-02**: Tool/skill system with defined cybersecurity tools agents can invoke
-- [ ] **AGNT-03**: Short-term memory (rolling context window) + long-term memory (key findings JSON)
-- [ ] **AGNT-04**: Decision logging capturing every action with reasoning trace
-- [ ] **AGNT-05**: Turn limit and command deduplication to prevent infinite retry loops
+- [x] **AGNT-03**: Short-term memory (rolling context window) + long-term memory (key findings JSON)
+- [x] **AGNT-04**: Decision logging capturing every action with reasoning trace
+- [x] **AGNT-05**: Turn limit and command deduplication to prevent infinite retry loops
 
 ### Red Team
 
@@ -83,16 +83,16 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
-| INFRA-03 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
+| INFRA-03 | Phase 1 | Complete |
 | INFRA-04 | Phase 3 | Pending |
-| INFRA-05 | Phase 1 | Pending |
-| AGNT-01 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Complete |
+| AGNT-01 | Phase 1 | Complete |
 | AGNT-02 | Phase 2 | Pending |
-| AGNT-03 | Phase 1 | Pending |
-| AGNT-04 | Phase 1 | Pending |
-| AGNT-05 | Phase 1 | Pending |
+| AGNT-03 | Phase 1 | Complete |
+| AGNT-04 | Phase 1 | Complete |
+| AGNT-05 | Phase 1 | Complete |
 | RED-01 | Phase 2 | Pending |
 | RED-02 | Phase 2 | Pending |
 | RED-03 | Phase 2 | Pending |
@@ -118,4 +118,4 @@
 
 ---
 *Requirements defined: 2026-04-08*
-*Last updated: 2026-04-08 — traceability updated with phase mappings*
+*Last updated: 2026-04-08 — Phase 1 requirements marked Complete*

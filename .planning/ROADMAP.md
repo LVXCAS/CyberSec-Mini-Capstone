@@ -29,13 +29,16 @@ Two autonomous AI agents compete over a live Ubuntu VM: a red team attacker and 
 
 **Parallelization:** Docker/networking setup runs in parallel with KoboldCpp/GPU validation.
 
-**Plans:** 4 plans in 3 waves
+**Plans:** 6 plans in 4 waves (includes 2 gap closure plans)
 
 Plans:
-- [ ] 01-01-PLAN.md — Docker Compose infrastructure with network isolation and battleground VM
-- [ ] 01-02-PLAN.md — KoboldCpp + Gemma 4 on K80 GPU validation
-- [ ] 01-03-PLAN.md — Orchestrator with safety filter, SSH execution, and SQLite logging
-- [ ] 01-04-PLAN.md — Autonomous agent reasoning loop with memory, logging, and dedup
+- [x] 01-01-PLAN.md — Docker Compose infrastructure with network isolation and battleground VM
+- [x] 01-02-PLAN.md — KoboldCpp + Gemma 4 on K80 GPU validation
+- [x] 01-03-PLAN.md — Orchestrator with safety filter, SSH execution, and SQLite logging
+- [x] 01-04-PLAN.md — Autonomous agent reasoning loop with memory, logging, and dedup
+- [x] 01-05-PLAN.md — Gap closure: Fix agent Dockerfiles + extract hardcoded passwords to .env
+- [x] 01-06-PLAN.md — Gap closure: Network isolation test script
+- [x] 01-07-PLAN.md — Gap closure: Fix act_node response parsing
 
 ### Requirements
 
@@ -164,7 +167,7 @@ Plans:
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
-| 1 - Foundation | Planned (4 plans) | — |
+| 1 - Foundation | ✓ Complete (7 plans) | 2026-04-08 |
 | 2 - Agents and Game | Not started | — |
 | 3 - Demo Ready | Not started | — |
 
@@ -203,4 +206,4 @@ Phase 3: Demo Ready
 
 ---
 *Roadmap defined: 2026-04-08*
-*Last updated: 2026-04-08 — Phase 1 planned (4 plans, 3 waves)*
+*Last updated: 2026-04-08 — Phase 1 complete (7 plans, verified)*
