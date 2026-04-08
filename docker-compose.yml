@@ -39,7 +39,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - BATTLEGROUND_PASSWORD=Pr0jectAdmin1
+      - BATTLEGROUND_PASSWORD=${BATTLEGROUND_PASSWORD}
     volumes:
       - orchestrator-data:/app/data
     depends_on:

@@ -1,2 +1,4 @@
 .planning/intel/
 __pycache__/
+.env
+
