@@ -54,7 +54,8 @@ services:
 
   red-agent:
     build:
-      context: ./agents/red_agent
+      context: ./agents
+      dockerfile: red_agent/Dockerfile
     container_name: red-agent
     networks:
       - red-net
@@ -64,7 +65,8 @@ services:
 
   blue-agent:
     build:
-      context: ./agents/blue_agent
+      context: ./agents
+      dockerfile: blue_agent/Dockerfile
     container_name: blue-agent
     networks:
       - blue-net
