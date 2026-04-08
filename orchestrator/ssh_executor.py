@@ -47,7 +47,7 @@ def execute_command(
         CommandResult with stdout, stderr, exit_code, timing info.
     """
     if password is None:
-        password = os.environ.get("BATTLEGROUND_PASSWORD", "SecureAdmin1")
+        password = os.environ.get("BATTLEGROUND_PASSWORD", "Pr0jectAdmin1")
 
     start_ms = int(time.time() * 1000)
     client = _get_ssh_client()
