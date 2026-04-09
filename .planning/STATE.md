@@ -1,7 +1,7 @@
 # Project State: CyberSec AI Capstone
 
 **Last updated:** 2026-04-09
-**Session:** Phase 2 COMPLETE — all 6 plans delivered
+**Session:** Phase 3 in progress — 03-02 complete
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core value:** Autonomous AI agents that reason about cybersecurity decisions and execute real commands on real infrastructure — proving AI can independently attack and defend systems without human guidance.
 
-**Current focus:** Phase 2 COMPLETE — Ready for Phase 3 (Demo Readiness)
+**Current focus:** Phase 3 (Demo Readiness) — 03-02 complete, demo scripts delivered
 
 **Deadline:** 2026-04-10 (1 day from now)
 
@@ -20,13 +20,13 @@
 | Field | Value |
 |-------|-------|
 | Milestone | v1 |
-| Phase | 2 — Agents and Game (COMPLETE) |
-| Plan | 02-06 complete |
-| Status | Phase 2 verified ✓ — ready for Phase 3 |
-| Last activity | 2026-04-09 - Phase 2 verified |
-| Progress | █████████░ 90% |
+| Phase | 3 — Demo Readiness (in progress) |
+| Plan | 03-02 complete |
+| Status | In progress |
+| Last activity | 2026-04-09 - Completed 03-02-PLAN.md (demo scripts) |
+| Progress | ██████████░ 93% |
 
-**Phase progress:** Phase 2 all 6 of 6 plans complete. Ready for Phase 3.
+**Phase progress:** Phase 3 — 2 of 4 plans complete (03-01, 03-02).
 
 ---
 
@@ -122,7 +122,7 @@ None currently.
 - 2026-04-09: Completed 02-06 (Integration testing + Docker wiring + 37 tests) - Phase 2 COMPLETE
 
 Last session: 2026-04-09
-Stopped at: Completed 02-06-PLAN.md — Phase 2 complete
+Stopped at: Completed 03-02-PLAN.md — demo scripts (reset, start, demo, validate-reset)
 Resume file: None
 
 ---
