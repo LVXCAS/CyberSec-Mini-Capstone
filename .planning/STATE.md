@@ -1,7 +1,7 @@
 # Project State: CyberSec AI Capstone
 
 **Last updated:** 2026-04-09
-**Session:** Phase 2 in progress — 02-01, 02-02, 02-03 complete
+**Session:** Phase 2 in progress — 02-01, 02-02, 02-03, 02-04 complete
 
 ---
 
@@ -21,12 +21,12 @@
 |-------|-------|
 | Milestone | v1 |
 | Phase | 2 — Agents and Game (in progress) |
-| Plan | 02-03 complete |
+| Plan | 02-04 complete |
 | Status | In progress |
-| Last activity | 2026-04-09 - Completed 02-03-PLAN.md |
-| Progress | ██████░░░░ 60% |
+| Last activity | 2026-04-09 - Completed 02-04-PLAN.md |
+| Progress | ███████░░░ 70% |
 
-**Phase progress:** Phase 2 plans 1-3 of 6 complete
+**Phase progress:** Phase 2 plans 1-4 of 6 complete
 
 ---
 
@@ -57,6 +57,9 @@
 | E4B variant approved | User approved at 01-02 checkpoint; fits 24GB K80 VRAM | Confirmed |
 | Hub-and-spoke orchestrator | Agents never touch battleground directly — orchestrator proxies all commands | Confirmed |
 | Skills POST to orchestrator /execute | Maintains hub-and-spoke; orchestrator handles SSH, safety, logging | Confirmed |
+| Skill dispatch over raw commands | Agents pick skills by name; no raw shell commands possible | Confirmed |
+| 3-retry parse failure recovery | Gemma may not produce clean JSON; graceful degradation with hints | Confirmed |
+| Module-level game state in orchestrator | Single-process demo; acceptable for capstone scope | Confirmed |
 | Blocklist safety filter | Demo needs visible blocked commands; allowlist too restrictive for exploratory agents | Confirmed |
 | 4096 char output truncation | Prevents LLM context explosion from large command outputs | Confirmed |
 | WAL mode SQLite | Allows concurrent reads from multiple agents without blocking | Confirmed |
@@ -117,9 +120,9 @@ None currently.
 - 2026-04-09: Completed 02-01 (Skill registry + 8 red team skills) - 2 tasks, 2 commits
 
 Last session: 2026-04-09
-Stopped at: Completed 02-01-PLAN.md
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None
 
 ---
 *State initialized: 2026-04-08*
-*Last updated: 2026-04-09 — 02-01 Skill registry + red team skills complete*
+*Last updated: 2026-04-09 — 02-04 Agent-skill integration + game endpoints complete*
