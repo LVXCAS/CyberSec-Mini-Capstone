@@ -1,7 +1,7 @@
 # Project State: CyberSec AI Capstone
 
 **Last updated:** 2026-04-09
-**Session:** Phase 3 in progress — 03-03 complete
+**Session:** Phase 3 COMPLETE — all 4 plans delivered
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core value:** Autonomous AI agents that reason about cybersecurity decisions and execute real commands on real infrastructure — proving AI can independently attack and defend systems without human guidance.
 
-**Current focus:** Phase 3 (Demo Readiness) — 03-03 complete, replay viewer delivered
+**Current focus:** Phase 3 (Demo Readiness) — COMPLETE, all 4 plans delivered
 
 **Deadline:** 2026-04-10 (1 day from now)
 
@@ -20,13 +20,13 @@
 | Field | Value |
 |-------|-------|
 | Milestone | v1 |
-| Phase | 3 — Demo Readiness (in progress) |
-| Plan | 03-03 complete |
-| Status | In progress |
-| Last activity | 2026-04-09 - Completed 03-03-PLAN.md (replay viewer) |
-| Progress | ███████████░ 96% |
+| Phase | 3 — Demo Readiness (COMPLETE) |
+| Plan | 03-04 complete |
+| Status | Phase 3 complete |
+| Last activity | 2026-04-09 - Completed 03-04-PLAN.md (presentation slides) |
+| Progress | ████████████ 100% |
 
-**Phase progress:** Phase 3 — 3 of 4 plans complete (03-01, 03-02, 03-03).
+**Phase progress:** Phase 3 — 4 of 4 plans complete (03-01, 03-02, 03-03, 03-04).
 
 ---
 
@@ -37,7 +37,7 @@
 | Requirements defined | 27 |
 | Requirements mapped | 27 |
 | Requirements complete | 22 |
-| Phases complete | 2/3 |
+| Phases complete | 3/3 |
 
 ---
 
@@ -70,6 +70,8 @@
 | Rich for terminal display | Faster to ship than web frontend; equally compelling for capstone | Confirmed |
 | List for executed_commands | JSON serialisation; LangGraph state must be serialisable | Confirmed |
 | Regex fallback for LLM parsing | Gemma 4 may not always produce clean JSON; graceful degradation needed | Confirmed |
+| Marp for presentation slides | Text-based, version-controllable, renders from CLI | Confirmed |
+| Mermaid for architecture diagram | Embeddable in Markdown, no external tools needed | Confirmed |
 
 ### Critical Unknowns (Validate in Phase 1 First)
 
@@ -121,11 +123,12 @@ None currently.
 - 2026-04-09: Completed 02-02 through 02-05 (blue skills, game engine, agent integration, game loop)
 - 2026-04-09: Completed 02-06 (Integration testing + Docker wiring + 37 tests) - Phase 2 COMPLETE
 - 2026-04-09: Completed 03-03 (Post-game replay viewer) — display/replay.py, 1 task, 1 commit
+- 2026-04-09: Completed 03-04 (Presentation slides + architecture diagram) — Phase 3 COMPLETE
 
 Last session: 2026-04-09
-Stopped at: Completed 03-03-PLAN.md — replay viewer (fetch_all_decisions, replay_game, argparse CLI)
+Stopped at: Completed 03-04-PLAN.md — presentation slides and architecture diagram
 Resume file: None
 
 ---
 *State initialized: 2026-04-08*
-*Last updated: 2026-04-09 — 03-03 complete, replay viewer delivered*
+*Last updated: 2026-04-09 — Phase 3 COMPLETE, all plans delivered*
