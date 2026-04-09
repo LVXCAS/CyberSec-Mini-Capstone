@@ -71,6 +71,9 @@ def validate_command(command: str, agent_role: str) -> FilterResult:
     # Check role-based restrictions
     # Normalize role: "red-agent" -> "red", "blue-agent" -> "blue"
     normalized_role = agent_role.split("-")[0].lower()
+    # "system" role bypasses role-specific restrictions (used by snapshot manager)
+    if normalized_role == "system":
+        return FilterResult(allowed=True, command=command, sanitized_command=command)
     role_rules = ROLE_RESTRICTIONS.get(normalized_role, [])
     for pattern, reason in role_rules:
         if re.search(pattern, command):
