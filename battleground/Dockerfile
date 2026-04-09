@@ -15,7 +15,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     python3 \
     logrotate \
+    ufw \
+    hydra \
+    nmap \
+    php-cli \
     && rm -rf /var/lib/apt/lists/*
+
+# Weak users for red team brute-force targets
+RUN useradd -m -s /bin/bash testuser && echo 'testuser:password123' | chpasswd
+RUN useradd -m -s /bin/bash sysop && echo 'sysop:admin123' | chpasswd
+
+# SUID binary for privilege escalation
+RUN cp /usr/bin/find /usr/local/bin/find-vuln && chmod u+s /usr/local/bin/find-vuln
 
 RUN mkdir -p /run/sshd /run/mysqld && \
     chown mysql:mysql /run/mysqld

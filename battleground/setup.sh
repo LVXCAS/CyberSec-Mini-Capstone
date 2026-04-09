@@ -76,6 +76,62 @@ PHP
 
 rm -f /var/www/html/index.html
 
+# Vulnerable file upload page (no validation)
+cat > /var/www/html/upload.php <<'PHP'
+<?php
+$message = "";
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["file"])) {
+    $target = "/var/www/html/uploads/" . basename($_FILES["file"]["name"]);
+    if (!is_dir("/var/www/html/uploads")) {
+        mkdir("/var/www/html/uploads", 0777, true);
+    }
+    // Intentionally no file type validation for training purposes
+    if (move_uploaded_file($_FILES["file"]["tmp_name"], $target)) {
+        $message = "File uploaded to: " . htmlspecialchars($target);
+    } else {
+        $message = "Upload failed.";
+    }
+}
+?>
+<!DOCTYPE html>
+<html>
+<head><title>File Upload</title></head>
+<body>
+<h1>File Upload</h1>
+<?php if ($message) echo "<p>$message</p>"; ?>
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <button type="submit">Upload</button>
+</form>
+</body>
+</html>
+PHP
+
+# SQL injection login page (separate from index for clarity)
+cat > /var/www/html/login.php <<'PHP'
+<?php
+$conn = new mysqli("localhost", "webapp_user", "webapppass", "webapp");
+if ($conn->connect_error) die("Connection failed");
+$msg = "";
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $u = $_POST["username"];
+    $p = $_POST["password"];
+    // Intentionally vulnerable to SQL injection
+    $r = $conn->query("SELECT * FROM users WHERE username='$u' AND password='$p'");
+    $msg = ($r && $r->num_rows > 0) ? "Welcome, " . htmlspecialchars($u) : "Invalid credentials.";
+}
+?>
+<!DOCTYPE html><html><body>
+<h2>Login</h2>
+<?php if ($msg) echo "<p>$msg</p>"; ?>
+<form method="POST">
+<input name="username" placeholder="Username"><br>
+<input name="password" type="password" placeholder="Password"><br>
+<button type="submit">Login</button>
+</form>
+</body></html>
+PHP
+
 # Cron jobs
 echo "0 2 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1" | crontab -u backup -
 cat > /usr/local/bin/backup.sh <<'SCRIPT'
@@ -105,5 +161,9 @@ cat > /var/log/webapp.log <<'LOG'
 [2026-04-07 10:00:00] INFO: User mjones logged in from 192.168.1.52
 [2026-04-07 14:30:12] ERROR: Database query timeout on /api/reports
 LOG
+
+# Ensure rsyslog writes auth.log (for blue agent detection)
+touch /var/log/auth.log
+chmod 640 /var/log/auth.log
 
 echo "Battleground setup complete."

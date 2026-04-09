@@ -16,5 +16,5 @@ AcceptEnv LANG LC_*
 
 Subsystem sftp /usr/lib/openssh/sftp-server
 
-MaxAuthTries 6
+MaxAuthTries 20
 LoginGraceTime 120
