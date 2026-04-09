@@ -8,6 +8,7 @@ from typing import Any, Callable
 from skills.red.exploit import ssh_brute, web_sqli_check
 from skills.red.persistence import add_backdoor_user, add_ssh_key, install_cron_backdoor
 from skills.red.privesc import find_suid
+from skills.blue import register_blue_skills
 from skills.red.recon import port_scan, service_enum
 
 logger = logging.getLogger("skills.registry")
@@ -156,3 +157,9 @@ _register(
     function=add_ssh_key,
     role="red",
 )
+
+# ---------------------------------------------------------------------------
+# Register blue team skills
+# ---------------------------------------------------------------------------
+
+register_blue_skills(SKILL_REGISTRY)
