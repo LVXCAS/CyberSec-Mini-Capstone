@@ -1,27 +1,31 @@
 """
 Base autonomous agent using LangGraph StateGraph.
 
-Implements observe -> reason -> act -> check_done loop with:
+Implements observe -> reason -> tool_dispatcher -> check_done loop with:
+- Skill-based dispatch (LLM picks skill name + parameters)
 - Rolling short-term memory (last 5 observations)
 - Long-term memory (key findings as JSON)
-- Command deduplication
+- Skill call deduplication (name + sorted params)
 - JSONL decision logging
 - Turn limits
 - Context window management (< 2048 tokens ~ 8192 chars)
+- Parse failure recovery (up to 3 retries before default skill)
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, TypedDict
 
 import requests
 from langgraph.graph import END, StateGraph
+
+from skills.registry import SKILL_REGISTRY, execute_skill
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -35,6 +39,13 @@ MAX_PROMPT_CHARS = 8192  # ~2048 tokens at 4 chars/token
 INFERENCE_TIMEOUT = 60  # seconds
 MAX_OUTPUT_TOKENS = 512
 LLM_TEMPERATURE = 0.7
+MAX_PARSE_FAILURES = 3
+
+# Default fallback skills per role when parse failures exhaust retries
+_DEFAULT_SKILLS: dict[str, dict] = {
+    "red": {"name": "port_scan", "parameters": {"target": "10.0.0.5"}},
+    "blue": {"name": "scan_processes", "parameters": {}},
+}
 
 # ---------------------------------------------------------------------------
 # State schema
@@ -47,11 +58,14 @@ class AgentState(TypedDict):
     turn_number: int
     max_turns: int
     observations: list[str]
-    executed_commands: list[str]  # list for JSON serialisation; checked as set
+    executed_skills: list[str]  # hashes of (name + sorted params) for dedup
     findings: list[dict]
     messages: list[dict]
     done: bool
     last_result: dict
+    available_skills: list[dict]  # skill metadata for prompt
+    game_phase: str  # "setup" or "battle"
+    parse_failures: int  # consecutive parse failure count
 
 
 # ---------------------------------------------------------------------------
@@ -65,29 +79,136 @@ def _truncate(text: str, max_len: int = 200) -> str:
     return text[:max_len] + "..."
 
 
+def _skill_hash(name: str, params: dict) -> str:
+    """Create a deduplication hash from skill name + sorted parameters."""
+    key = json.dumps({"name": name, "params": params}, sort_keys=True)
+    return hashlib.md5(key.encode()).hexdigest()
+
+
+def _parse_skill_call(text: str) -> dict | None:
+    """Parse a skill call from LLM output.
+
+    Returns dict with 'name', 'parameters', and optionally 'reasoning',
+    or None if parsing fails completely.
+
+    Layers:
+    1. Direct JSON parse for {"name": ..., "parameters": ...}
+    2. Regex to extract JSON block from mixed text
+    3. Regex for individual fields from partial JSON
+    4. None (caller handles re-reasoning)
+    """
+    stripped = text.strip()
+
+    # Layer 1: Direct JSON parse
+    try:
+        data = json.loads(stripped)
+        if isinstance(data, dict) and "name" in data:
+            return {
+                "name": data["name"],
+                "parameters": data.get("parameters", {}),
+                "reasoning": data.get("reasoning", ""),
+            }
+    except (json.JSONDecodeError, ValueError):
+        pass
+
+    # Layer 2: Regex to find JSON block containing "name"
+    json_match = re.search(r'\{[^{}]*"name"[^{}]*\}', text)
+    if json_match:
+        try:
+            data = json.loads(json_match.group())
+            if "name" in data:
+                return {
+                    "name": data["name"],
+                    "parameters": data.get("parameters", {}),
+                    "reasoning": data.get("reasoning", ""),
+                }
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # Layer 3: Extract name and parameters separately
+    name_match = re.search(r'"name"\s*:\s*"(\w+)"', text)
+    params_match = re.search(r'"parameters"\s*:\s*(\{[^}]*\})', text)
+    if name_match:
+        params = {}
+        if params_match:
+            try:
+                params = json.loads(params_match.group(1))
+            except (json.JSONDecodeError, ValueError):
+                pass
+        reasoning_match = re.search(r'"reasoning"\s*:\s*"([^"]*)"', text)
+        return {
+            "name": name_match.group(1),
+            "parameters": params,
+            "reasoning": reasoning_match.group(1) if reasoning_match else "",
+        }
+
+    # Layer 4: Complete failure
+    return None
+
+
 def _build_prompt(state: AgentState) -> list[dict]:
-    """Build LLM messages list, capped at MAX_PROMPT_CHARS."""
+    """Build LLM messages list with skill-aware prompt, capped at MAX_PROMPT_CHARS."""
     system = state["system_prompt"]
+
+    # Format available skills as compact JSON list for the system message
+    skills_json = json.dumps(state["available_skills"], indent=1)
 
     observations_block = "\n".join(
         f"[Turn {i+1}] {obs}"
         for i, obs in enumerate(state["observations"][-MAX_OBSERVATION_WINDOW:])
     )
 
-    findings_block = json.dumps(state["findings"][-10:], indent=1) if state["findings"] else "None yet."
+    findings_block = (
+        json.dumps(state["findings"][-10:], indent=1)
+        if state["findings"]
+        else "None yet."
+    )
 
-    executed_block = ", ".join(state["executed_commands"][-20:]) if state["executed_commands"] else "None yet."
+    executed_block = (
+        ", ".join(state["executed_skills"][-20:])
+        if state["executed_skills"]
+        else "None yet."
+    )
+
+    turn = state["turn_number"]
+    max_turns = state["max_turns"]
+    remaining = max_turns - turn
+    phase = state.get("game_phase", "battle")
+    role = state["agent_role"]
+
+    # Adaptive instructions based on role and phase
+    phase_instruction = ""
+    if role == "red":
+        if remaining <= max_turns * 0.3:
+            phase_instruction = (
+                "WARNING: Running low on turns. Escalate aggression. "
+                "Try multiple attack vectors simultaneously."
+            )
+    elif role == "blue":
+        if phase == "setup":
+            phase_instruction = (
+                "PHASE: Setup. Focus on hardening: apply firewall rules, "
+                "harden SSH, check for SUID binaries, configure monitoring."
+            )
+        else:
+            phase_instruction = (
+                "PHASE: Battle. Balance detection and response. "
+                "Poll for intrusion signs, then act on findings."
+            )
 
     user_content = (
         f"## Current Situation\n"
-        f"Turn: {state['turn_number']}/{state['max_turns']}\n"
-        f"Remaining turns: {state['max_turns'] - state['turn_number']}\n\n"
+        f"Turn: {turn}/{max_turns}\n"
+        f"Remaining turns: {remaining}\n"
+        f"Game phase: {phase}\n\n"
+        f"{phase_instruction}\n\n"
+        f"## Available Skills\n{skills_json}\n\n"
         f"## Recent Observations (short-term memory)\n{observations_block}\n\n"
         f"## Key Findings (long-term memory)\n{findings_block}\n\n"
-        f"## Commands Already Executed (do NOT repeat)\n{executed_block}\n\n"
+        f"## Skills Already Used (hashes — do NOT repeat identical calls)\n{executed_block}\n\n"
         f"## Your Task\n"
         f"Choose your next action. Respond ONLY with JSON:\n"
-        f'  {{"tool": "execute", "args": {{"cmd": "your_command"}}, "reasoning": "why"}}\n'
+        f'  {{"name": "skill_name", "parameters": {{"key": "value"}}, "reasoning": "why this skill"}}\n'
     )
 
     # Truncate user content if total exceeds budget
@@ -102,48 +223,12 @@ def _build_prompt(state: AgentState) -> list[dict]:
     ]
 
 
-def _parse_llm_response(text: str) -> dict:
-    """Parse JSON tool-call from LLM response. Falls back to regex extraction."""
-    # Try direct JSON parse
-    try:
-        data = json.loads(text.strip())
-        if "tool" in data and "args" in data:
-            return data
-    except json.JSONDecodeError:
-        pass
-
-    # Try to find JSON block in text
-    json_match = re.search(r'\{[^{}]*"tool"[^{}]*"args"[^{}]*\{[^{}]*\}[^{}]*\}', text)
-    if json_match:
-        try:
-            return json.loads(json_match.group())
-        except json.JSONDecodeError:
-            pass
-
-    # Fallback: extract command from freeform text
-    cmd_match = re.search(r'`([^`]+)`', text)
-    if cmd_match:
-        return {
-            "tool": "execute",
-            "args": {"cmd": cmd_match.group(1)},
-            "reasoning": "Extracted from freeform response",
-        }
-
-    # Last resort
-    return {
-        "tool": "execute",
-        "args": {"cmd": "whoami"},
-        "reasoning": "Failed to parse LLM response; falling back to safe command",
-    }
-
-
 def _log_decision(
     agent_role: str,
     turn: int,
-    command: str,
+    skill_name: str,
     reasoning: str,
-    exit_code: int,
-    stdout: str,
+    result: dict,
     was_blocked: bool,
 ) -> None:
     """Append one JSONL line to the decisions log."""
@@ -152,10 +237,9 @@ def _log_decision(
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "agent_role": agent_role,
         "turn": turn,
-        "command": command,
+        "skill": skill_name,
         "reasoning": reasoning,
-        "result_exit_code": exit_code,
-        "result_stdout_preview": _truncate(stdout, 200),
+        "result_preview": _truncate(str(result), 200),
         "was_blocked": was_blocked,
     }
     with open(DECISIONS_LOG, "a") as f:
@@ -168,16 +252,14 @@ def _log_decision(
 
 
 def observe_node(state: AgentState) -> dict:
-    """Query orchestrator for last action result or run initial recon."""
+    """Query orchestrator for last action result or run initial observation."""
     role = state["agent_role"]
     observations = list(state["observations"])
 
     if state["turn_number"] == 0:
-        # First turn — add initial observation
         initial = f"Agent {role} starting. No previous observations."
         observations.append(initial)
     else:
-        # Fetch last decision result from orchestrator
         try:
             resp = requests.get(
                 f"{ORCHESTRATOR_URL}/decisions/{role}",
@@ -200,14 +282,12 @@ def observe_node(state: AgentState) -> dict:
         except requests.RequestException as e:
             observations.append(f"Failed to reach orchestrator: {e}")
 
-    # Rolling window
     observations = observations[-MAX_OBSERVATION_WINDOW:]
-
     return {"observations": observations}
 
 
 def reason_node(state: AgentState) -> dict:
-    """Call LLM to decide next action."""
+    """Call LLM to decide next skill call."""
     messages = _build_prompt(state)
 
     try:
@@ -224,93 +304,106 @@ def reason_node(state: AgentState) -> dict:
         resp.raise_for_status()
         llm_text = resp.json()["choices"][0]["message"]["content"]
     except (requests.RequestException, KeyError, IndexError) as e:
-        llm_text = json.dumps({
-            "tool": "execute",
-            "args": {"cmd": "whoami"},
-            "reasoning": f"LLM call failed ({e}); safe fallback",
-        })
+        # On LLM failure, produce a fallback skill call
+        role = state["agent_role"]
+        fallback = _DEFAULT_SKILLS.get(role, _DEFAULT_SKILLS["blue"])
+        llm_text = json.dumps({**fallback, "reasoning": f"LLM call failed ({e}); fallback"})
 
-    parsed = _parse_llm_response(llm_text)
-    return {"messages": [{"role": "assistant", "content": json.dumps(parsed)}]}
+    return {"messages": [{"role": "assistant", "content": llm_text}]}
 
 
-def act_node(state: AgentState) -> dict:
-    """Execute the chosen command via orchestrator."""
+def tool_dispatcher_node(state: AgentState) -> dict:
+    """Parse LLM output and dispatch to the appropriate skill."""
     role = state["agent_role"]
     turn = state["turn_number"]
 
-    # Get latest reasoning from messages
     last_msg = state["messages"][-1] if state["messages"] else {}
-    try:
-        action = json.loads(last_msg.get("content", "{}"))
-    except json.JSONDecodeError:
-        action = {"tool": "execute", "args": {"cmd": "whoami"}, "reasoning": "parse error fallback"}
+    llm_text = last_msg.get("content", "")
 
-    command = action.get("args", {}).get("cmd", "whoami")
-    reasoning = action.get("reasoning", "")
+    parsed = _parse_skill_call(llm_text)
+    observations = list(state["observations"])
+    parse_failures = state.get("parse_failures", 0)
 
-    # Deduplication check
-    executed = list(state["executed_commands"])
-    if command in executed:
-        # Modify command slightly to avoid exact duplicate
-        command = f"{command} 2>&1"
-        if command in executed:
-            command = f"echo 'skipped duplicate'; {command}"
+    # --- Parse failure handling ---
+    if parsed is None:
+        parse_failures += 1
+        if parse_failures >= MAX_PARSE_FAILURES:
+            # Force default skill after too many failures
+            parsed = _DEFAULT_SKILLS.get(role, _DEFAULT_SKILLS["blue"]).copy()
+            parsed["reasoning"] = "Forced default after parse failures"
+            parse_failures = 0
+        else:
+            skill_names = [s["name"] for s in state.get("available_skills", [])]
+            observations.append(
+                f"Failed to parse skill call. Please respond with ONLY JSON: "
+                f'{{"name": "skill_name", "parameters": {{...}}, "reasoning": "..."}}. '
+                f"Available skills: {', '.join(skill_names)}"
+            )
+            observations = observations[-MAX_OBSERVATION_WINDOW:]
+            return {
+                "observations": observations,
+                "parse_failures": parse_failures,
+                # Do NOT increment turn_number
+            }
 
-    # Execute via orchestrator
-    exit_code = -1
-    stdout = ""
-    was_blocked = False
+    skill_name = parsed["name"]
+    params = parsed.get("parameters", {})
+    reasoning = parsed.get("reasoning", "")
 
-    try:
-        resp = requests.post(
-            f"{ORCHESTRATOR_URL}/execute",
-            json={
-                "agent_role": role,
-                "command": command,
-                "reasoning": reasoning,
-                "turn_number": turn,
-            },
-            timeout=30,
-        )
-        result = resp.json()
-        was_blocked = not result.get("allowed", True)
-        cmd_result = result.get("result") or {}
-        exit_code = cmd_result.get("exit_code", -1)
-        stdout = cmd_result.get("stdout", "")
-    except requests.RequestException as e:
-        stdout = f"Orchestrator request failed: {e}"
+    # --- Unknown skill handling ---
+    if skill_name not in SKILL_REGISTRY:
+        parse_failures += 1
+        skill_names = [s["name"] for s in state.get("available_skills", [])]
+        if parse_failures >= MAX_PARSE_FAILURES:
+            parsed = _DEFAULT_SKILLS.get(role, _DEFAULT_SKILLS["blue"]).copy()
+            parsed["reasoning"] = "Forced default after unknown skill attempts"
+            skill_name = parsed["name"]
+            params = parsed.get("parameters", {})
+            reasoning = parsed.get("reasoning", "")
+            parse_failures = 0
+        else:
+            observations.append(
+                f"Unknown skill '{skill_name}'. Available: {', '.join(skill_names)}"
+            )
+            observations = observations[-MAX_OBSERVATION_WINDOW:]
+            return {
+                "observations": observations,
+                "parse_failures": parse_failures,
+            }
 
-    # Log decision
-    _log_decision(role, turn, command, reasoning, exit_code, stdout, was_blocked)
+    # --- Deduplication ---
+    call_hash = _skill_hash(skill_name, params)
+    executed = list(state.get("executed_skills", []))
 
-    # Update executed commands
-    executed.append(command)
+    # --- Execute skill ---
+    result = execute_skill(skill_name, params, ORCHESTRATOR_URL)
+    was_blocked = not result.get("success", True)
 
-    # Update findings if notable result
-    findings = list(state["findings"])
-    if exit_code == 0 and len(stdout) > 10 and not was_blocked:
-        findings.append({
-            "turn": turn,
-            "command": command,
-            "summary": _truncate(stdout, 100),
-        })
+    _log_decision(role, turn, skill_name, reasoning, result, was_blocked)
+    executed.append(call_hash)
 
     # Build observation from result
-    observations = list(state["observations"])
-    result_obs = (
-        f"Executed: {command} | Exit: {exit_code} | "
-        f"Output: {_truncate(stdout, 150)}"
-    )
+    result_preview = _truncate(str(result), 150)
+    result_obs = f"Skill: {skill_name} | Result: {result_preview}"
     observations.append(result_obs)
     observations = observations[-MAX_OBSERVATION_WINDOW:]
 
+    # Update findings if notable
+    findings = list(state["findings"])
+    if result.get("success", False):
+        findings.append({
+            "turn": turn,
+            "skill": skill_name,
+            "summary": _truncate(str(result), 100),
+        })
+
     return {
         "turn_number": turn + 1,
-        "executed_commands": executed,
+        "executed_skills": executed,
         "findings": findings,
         "observations": observations,
-        "last_result": {"exit_code": exit_code, "stdout": stdout, "blocked": was_blocked},
+        "last_result": result,
+        "parse_failures": 0,  # Reset on successful dispatch
     }
 
 
@@ -328,6 +421,15 @@ def should_continue(state: AgentState) -> str:
     return "observe"
 
 
+def after_dispatcher(state: AgentState) -> str:
+    """Edge function after tool_dispatcher: check if parse failed (no turn increment)."""
+    # If turn wasn't incremented (parse failure), go back to reason
+    # We detect this by checking parse_failures > 0
+    if state.get("parse_failures", 0) > 0:
+        return "reason"
+    return "check_done"
+
+
 # ---------------------------------------------------------------------------
 # Graph construction
 # ---------------------------------------------------------------------------
@@ -339,13 +441,17 @@ def build_agent_graph() -> Any:
 
     graph.add_node("observe", observe_node)
     graph.add_node("reason", reason_node)
-    graph.add_node("act", act_node)
+    graph.add_node("tool_dispatcher", tool_dispatcher_node)
     graph.add_node("check_done", check_done_node)
 
     graph.set_entry_point("observe")
     graph.add_edge("observe", "reason")
-    graph.add_edge("reason", "act")
-    graph.add_edge("act", "check_done")
+    graph.add_edge("reason", "tool_dispatcher")
+    graph.add_conditional_edges(
+        "tool_dispatcher",
+        after_dispatcher,
+        {"reason": "reason", "check_done": "check_done"},
+    )
     graph.add_conditional_edges(
         "check_done",
         should_continue,
@@ -360,16 +466,24 @@ def build_agent_graph() -> Any:
 # ---------------------------------------------------------------------------
 
 
-def run_agent(role: str, system_prompt: str, max_turns: int = 15) -> dict:
+def run_agent(
+    role: str,
+    system_prompt: str,
+    max_turns: int = 15,
+    available_skills: list[dict] | None = None,
+    game_phase: str = "battle",
+) -> dict:
     """Run the autonomous agent loop.
 
     Args:
         role: Agent role identifier (e.g. "red", "blue").
         system_prompt: Role-specific system prompt for the LLM.
         max_turns: Maximum number of reasoning turns.
+        available_skills: Skill metadata list for the prompt.
+        game_phase: Current game phase ("setup" or "battle").
 
     Returns:
-        Final agent state dict with findings and executed commands.
+        Final agent state dict with findings and executed skills.
     """
     agent = build_agent_graph()
 
@@ -379,11 +493,14 @@ def run_agent(role: str, system_prompt: str, max_turns: int = 15) -> dict:
         "turn_number": 0,
         "max_turns": max_turns,
         "observations": [],
-        "executed_commands": [],
+        "executed_skills": [],
         "findings": [],
         "messages": [],
         "done": False,
         "last_result": {},
+        "available_skills": available_skills or [],
+        "game_phase": game_phase,
+        "parse_failures": 0,
     }
 
     final_state = agent.invoke(initial_state)
