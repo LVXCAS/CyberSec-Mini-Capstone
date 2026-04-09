@@ -6,6 +6,8 @@ import logging
 from typing import Any, Callable
 
 from skills.red.exploit import ssh_brute, web_sqli_check
+from skills.red.persistence import add_backdoor_user, add_ssh_key, install_cron_backdoor
+from skills.red.privesc import find_suid
 from skills.red.recon import port_scan, service_enum
 
 logger = logging.getLogger("skills.registry")
@@ -103,5 +105,54 @@ _register(
     description="Check a URL for basic SQL injection vulnerability.",
     parameters={"url": "Full URL of the login endpoint to test"},
     function=web_sqli_check,
+    role="red",
+)
+
+# ---------------------------------------------------------------------------
+# Register red team skills — privesc
+# ---------------------------------------------------------------------------
+
+_register(
+    name="find_suid",
+    description="Find SUID binaries on the target that may be exploitable for privilege escalation.",
+    parameters={},
+    function=find_suid,
+    role="red",
+)
+
+# ---------------------------------------------------------------------------
+# Register red team skills — persistence
+# ---------------------------------------------------------------------------
+
+_register(
+    name="add_backdoor_user",
+    description="Create a backdoor user account with bash shell access.",
+    parameters={
+        "username": "Username for the backdoor account",
+        "password": "Password for the backdoor account",
+    },
+    function=add_backdoor_user,
+    role="red",
+)
+
+_register(
+    name="install_cron_backdoor",
+    description="Install a cron-based reverse shell that fires every 5 minutes.",
+    parameters={
+        "callback_ip": "IP address to connect back to",
+        "port": "Port number for the reverse shell",
+    },
+    function=install_cron_backdoor,
+    role="red",
+)
+
+_register(
+    name="add_ssh_key",
+    description="Add an SSH public key to a target user's authorized_keys file.",
+    parameters={
+        "target_user": "Username whose authorized_keys to modify",
+        "pubkey": "SSH public key string to add",
+    },
+    function=add_ssh_key,
     role="red",
 )
