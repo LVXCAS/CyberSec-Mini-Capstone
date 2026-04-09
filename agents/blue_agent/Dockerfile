@@ -5,10 +5,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY requirements.txt .
+COPY agents/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY base_agent.py .
-COPY blue_agent/agent.py .
-COPY blue_agent/main.py .
+COPY agents/base_agent.py .
+COPY skills/ /app/skills/
+COPY agents/blue_agent/agent.py .
+COPY agents/blue_agent/main.py .
 
 CMD ["python", "agent.py"]
