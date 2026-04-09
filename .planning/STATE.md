@@ -22,8 +22,8 @@
 | Milestone | v1 |
 | Phase | 2 — Agents and Game (COMPLETE) |
 | Plan | 02-06 complete |
-| Status | Phase 2 complete |
-| Last activity | 2026-04-09 - Completed 02-06-PLAN.md |
+| Status | Phase 2 verified ✓ — ready for Phase 3 |
+| Last activity | 2026-04-09 - Phase 2 verified |
 | Progress | █████████░ 90% |
 
 **Phase progress:** Phase 2 all 6 of 6 plans complete. Ready for Phase 3.
@@ -36,7 +36,7 @@
 |--------|-------|
 | Requirements defined | 27 |
 | Requirements mapped | 27 |
-| Requirements complete | 8 |
+| Requirements complete | 22 |
 | Phases complete | 2/3 |
 
 ---

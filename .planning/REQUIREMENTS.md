@@ -16,32 +16,32 @@
 ### Agent Core
 
 - [x] **AGNT-01**: Autonomous reasoning loop (observe → reason → act → observe) powered by Gemma 4
-- [ ] **AGNT-02**: Tool/skill system with defined cybersecurity tools agents can invoke
+- [x] **AGNT-02**: Tool/skill system with defined cybersecurity tools agents can invoke
 - [x] **AGNT-03**: Short-term memory (rolling context window) + long-term memory (key findings JSON)
 - [x] **AGNT-04**: Decision logging capturing every action with reasoning trace
 - [x] **AGNT-05**: Turn limit and command deduplication to prevent infinite retry loops
 
 ### Red Team
 
-- [ ] **RED-01**: Reconnaissance skills (port scanning, service enumeration)
-- [ ] **RED-02**: Exploitation skills (service exploits, credential attacks)
-- [ ] **RED-03**: Privilege escalation skills
-- [ ] **RED-04**: Persistence skills (backdoor users, cron jobs, SSH keys)
+- [x] **RED-01**: Reconnaissance skills (port scanning, service enumeration)
+- [x] **RED-02**: Exploitation skills (service exploits, credential attacks)
+- [x] **RED-03**: Privilege escalation skills
+- [x] **RED-04**: Persistence skills (backdoor users, cron jobs, SSH keys)
 
 ### Blue Team
 
-- [ ] **BLUE-01**: Hardening skills (firewall rules, service config, user lockdown)
-- [ ] **BLUE-02**: Detection skills (log monitoring, process watching, connection tracking)
-- [ ] **BLUE-03**: Response skills (kill processes, remove unauthorized users, block IPs)
-- [ ] **BLUE-04**: Uptime maintenance (service health checks, restoration)
+- [x] **BLUE-01**: Hardening skills (firewall rules, service config, user lockdown)
+- [x] **BLUE-02**: Detection skills (log monitoring, process watching, connection tracking)
+- [x] **BLUE-03**: Response skills (kill processes, remove unauthorized users, block IPs)
+- [x] **BLUE-04**: Uptime maintenance (service health checks, restoration)
 
 ### Game Mechanics
 
-- [ ] **GAME-01**: Phase-based flow — blue setup phase (2-5 min) → simultaneous battle → conclusion
-- [ ] **GAME-02**: Two-layer scoring — decision log (AI reasoning showcase) + competitive points
-- [ ] **GAME-03**: Battleground state snapshots every 30-60 seconds
-- [ ] **GAME-04**: Win conditions — time expiry, red full kill chain, or blue lockout
-- [ ] **GAME-05**: Detection/stealth bonuses — blue scores for catching stealthy actions, red scores for evasion
+- [x] **GAME-01**: Phase-based flow — blue setup phase (2-5 min) → simultaneous battle → conclusion
+- [x] **GAME-02**: Two-layer scoring — decision log (AI reasoning showcase) + competitive points
+- [x] **GAME-03**: Battleground state snapshots every 30-60 seconds
+- [x] **GAME-04**: Win conditions — time expiry, red full kill chain, or blue lockout
+- [x] **GAME-05**: Detection/stealth bonuses — blue scores for catching stealthy actions, red scores for evasion
 
 ### Presentation
 

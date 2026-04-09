@@ -71,6 +71,23 @@ Plans:
 
 **Parallelization:** Red team skills and blue team skills can be built in parallel. Game mechanics (phase state machine, scoring) can be built in parallel with agent skill development and wired together at integration.
 
+**Plans:** 6 plans in 4 waves
+
+Plans:
+- [x] 02-01-PLAN.md — Skill registry and red team skills (recon, exploit, privesc, persistence)
+- [x] 02-02-PLAN.md — Blue team skills (hardening, detection, response, uptime)
+- [x] 02-03-PLAN.md — Game engine (state machine, scoring, snapshots, narrative)
+- [x] 02-04-PLAN.md — Tool dispatcher integration and orchestrator game endpoints
+- [x] 02-05-PLAN.md — Game loop and battleground vulnerabilities
+- [x] 02-06-PLAN.md — Integration testing and full game verification
+
+Wave structure:
+- Wave 1: 02-01, 02-02, 02-03 (independent, parallel)
+- Wave 2: 02-04 (depends on 01, 02, 03)
+- Wave 3: 02-05 (depends on 03, 04)
+- Wave 4: 02-06 (depends on 04, 05)
+
+
 ### Requirements
 
 | Req | Description |
@@ -168,7 +185,7 @@ Plans:
 | Phase | Status | Completed |
 |-------|--------|-----------|
 | 1 - Foundation | ✓ Complete (7 plans) | 2026-04-08 |
-| 2 - Agents and Game | Not started | — |
+| 2 - Agents and Game | ✓ Complete (6 plans) | 2026-04-08 |
 | 3 - Demo Ready | Not started | — |
 
 ---
@@ -206,4 +223,4 @@ Phase 3: Demo Ready
 
 ---
 *Roadmap defined: 2026-04-08*
-*Last updated: 2026-04-08 — Phase 1 complete (7 plans, verified)*
+*Last updated: 2026-04-09 — Phase 2 complete and verified*
