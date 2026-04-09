@@ -1,7 +1,7 @@
 # Project State: CyberSec AI Capstone
 
 **Last updated:** 2026-04-09
-**Session:** Phase 3 in progress — 03-02 complete
+**Session:** Phase 3 in progress — 03-03 complete
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core value:** Autonomous AI agents that reason about cybersecurity decisions and execute real commands on real infrastructure — proving AI can independently attack and defend systems without human guidance.
 
-**Current focus:** Phase 3 (Demo Readiness) — 03-02 complete, demo scripts delivered
+**Current focus:** Phase 3 (Demo Readiness) — 03-03 complete, replay viewer delivered
 
 **Deadline:** 2026-04-10 (1 day from now)
 
@@ -21,12 +21,12 @@
 |-------|-------|
 | Milestone | v1 |
 | Phase | 3 — Demo Readiness (in progress) |
-| Plan | 03-02 complete |
+| Plan | 03-03 complete |
 | Status | In progress |
-| Last activity | 2026-04-09 - Completed 03-02-PLAN.md (demo scripts) |
-| Progress | ██████████░ 93% |
+| Last activity | 2026-04-09 - Completed 03-03-PLAN.md (replay viewer) |
+| Progress | ███████████░ 96% |
 
-**Phase progress:** Phase 3 — 2 of 4 plans complete (03-01, 03-02).
+**Phase progress:** Phase 3 — 3 of 4 plans complete (03-01, 03-02, 03-03).
 
 ---
 
@@ -120,11 +120,12 @@ None currently.
 - 2026-04-09: Completed 02-01 (Skill registry + 8 red team skills) - 2 tasks, 2 commits
 - 2026-04-09: Completed 02-02 through 02-05 (blue skills, game engine, agent integration, game loop)
 - 2026-04-09: Completed 02-06 (Integration testing + Docker wiring + 37 tests) - Phase 2 COMPLETE
+- 2026-04-09: Completed 03-03 (Post-game replay viewer) — display/replay.py, 1 task, 1 commit
 
 Last session: 2026-04-09
-Stopped at: Completed 03-02-PLAN.md — demo scripts (reset, start, demo, validate-reset)
+Stopped at: Completed 03-03-PLAN.md — replay viewer (fetch_all_decisions, replay_game, argparse CLI)
 Resume file: None
 
 ---
 *State initialized: 2026-04-08*
-*Last updated: 2026-04-09 — Phase 2 complete, all 6 plans delivered*
+*Last updated: 2026-04-09 — 03-03 complete, replay viewer delivered*
