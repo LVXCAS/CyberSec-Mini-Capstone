@@ -10,7 +10,7 @@
 - [x] **INFRA-01**: Docker Compose setup with 3 containers (red-agent, blue-agent, battleground) on isolated networks
 - [x] **INFRA-02**: KoboldCpp running Gemma 4 (e2b or e4b) on K80 GPU serving both agents via OpenAI-compatible API
 - [x] **INFRA-03**: SSH-based command execution from agents to battleground via orchestrator safety filter
-- [ ] **INFRA-04**: One-command game reset that returns all containers to fresh state
+- [x] **INFRA-04**: One-command game reset that returns all containers to fresh state
 - [x] **INFRA-05**: Agent safety filter — orchestrator validates/sanitizes commands before execution (prevents container escape)
 
 ### Agent Core
@@ -45,10 +45,10 @@
 
 ### Presentation
 
-- [ ] **PRES-01**: Rich terminal display showing real-time game progress
-- [ ] **PRES-02**: Capstone presentation slides with architecture diagram
-- [ ] **PRES-03**: Post-game log/replay viewer
-- [ ] **PRES-04**: Architecture diagram for slides
+- [x] **PRES-01**: Rich terminal display showing real-time game progress
+- [x] **PRES-02**: Capstone presentation slides with architecture diagram
+- [x] **PRES-03**: Post-game log/replay viewer
+- [x] **PRES-04**: Architecture diagram for slides
 
 ## v2 Requirements
 
@@ -86,7 +86,7 @@
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
-| INFRA-04 | Phase 3 | Pending |
+| INFRA-04 | Phase 3 | Complete |
 | INFRA-05 | Phase 1 | Complete |
 | AGNT-01 | Phase 1 | Complete |
 | AGNT-02 | Phase 2 | Pending |
@@ -106,10 +106,10 @@
 | GAME-03 | Phase 2 | Pending |
 | GAME-04 | Phase 2 | Pending |
 | GAME-05 | Phase 2 | Pending |
-| PRES-01 | Phase 3 | Pending |
-| PRES-02 | Phase 3 | Pending |
-| PRES-03 | Phase 3 | Pending |
-| PRES-04 | Phase 3 | Pending |
+| PRES-01 | Phase 3 | Complete |
+| PRES-02 | Phase 3 | Complete |
+| PRES-03 | Phase 3 | Complete |
+| PRES-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 27 total
@@ -118,4 +118,4 @@
 
 ---
 *Requirements defined: 2026-04-08*
-*Last updated: 2026-04-08 — Phase 1 requirements marked Complete*
+*Last updated: 2026-04-09 — Phase 3 requirements marked Complete*

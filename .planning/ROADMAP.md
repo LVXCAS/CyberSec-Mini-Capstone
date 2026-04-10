@@ -125,6 +125,18 @@ Wave structure:
 
 **Parallelization:** Terminal display polish runs in parallel with slide creation; reset script hardening runs in parallel with replay viewer.
 
+**Plans:** 4 plans in 2 waves
+
+Plans:
+- [x] 03-01-PLAN.md — Rich terminal dashboard with real-time game display
+- [x] 03-02-PLAN.md — Reset, start, and demo scripts
+- [x] 03-03-PLAN.md — Post-game replay viewer
+- [x] 03-04-PLAN.md — Presentation slides and architecture diagram
+
+Wave structure:
+- Wave 1: 03-01, 03-02 (independent, parallel)
+- Wave 2: 03-03, 03-04 (03-03 depends on 03-01; 03-04 independent)
+
 ### Requirements
 
 | Req | Description |
@@ -186,7 +198,7 @@ Wave structure:
 |-------|--------|-----------|
 | 1 - Foundation | ✓ Complete (7 plans) | 2026-04-08 |
 | 2 - Agents and Game | ✓ Complete (6 plans) | 2026-04-08 |
-| 3 - Demo Ready | Not started | — |
+| 3 - Demo Ready | ✓ Complete (4 plans) | 2026-04-09 |
 
 ---
 
@@ -223,4 +235,4 @@ Phase 3: Demo Ready
 
 ---
 *Roadmap defined: 2026-04-08*
-*Last updated: 2026-04-09 — Phase 2 complete and verified*
+*Last updated: 2026-04-09 — Phase 3 planned (4 plans, 2 waves)*
