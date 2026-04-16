@@ -6,6 +6,8 @@
 
 ---
 
+## **Github Page:** https://lvxcas.github.io/CyberSec-Mini-Capstone/
+
 ## 1. Overview
 
 CyberSec AI Capstone is a live cybersecurity simulation in which two autonomous AI agents — a **Red Team attacker** and a **Blue Team defender** — compete over a fresh Ubuntu "battleground" VM using real shell commands. Neither agent is scripted: each reasons about its situation, selects a skill from its toolbox, and executes real commands through a safety-filtered orchestrator. The goal of the project is to demonstrate that modestly-sized local language models (Gemma 4, ~2B–4B parameters) can independently drive an attack/defense loop against a live Linux host and produce a visibly legible game from start to finish.
