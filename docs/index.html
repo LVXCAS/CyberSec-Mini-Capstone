@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSec AI Capstone — Red vs Blue Autonomous Warfare</title>
+  <meta name="description" content="Two autonomous AI agents compete in real-time cybersecurity warfare on a live Ubuntu battleground.">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+
+  <!-- ════ Navigation ════ -->
+  <nav class="site-nav">
+    <div class="nav-brand">// CYBERSEC_AI</div>
+    <ul class="nav-links">
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#simulation">Simulation</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#scoring">Scoring</a></li>
+      <li><a href="#narrative">Narrative</a></li>
+    </ul>
+  </nav>
+
+  <!-- ════ Hero / Landing ════ -->
+  <section class="hero" id="hero">
+    <div class="hero-label hero-stagger">AI Capstone Project</div>
+    <h1 class="hero-title hero-stagger">
+      <span class="red-accent">Red</span> vs <span class="blue-accent">Blue</span><br>
+      Autonomous Warfare
+    </h1>
+    <p class="hero-tagline hero-stagger">Two AI agents. One battleground. Zero human guidance.</p>
+    <a href="#simulation" class="hero-cta hero-stagger">
+      Watch the Battle <span class="arrow">&darr;</span>
+    </a>
+  </section>
+
+  <!-- ════ Architecture ════ -->
+  <section class="section" id="architecture">
+    <div class="container">
+      <div class="section-header reveal-on-scroll">
+        <div class="section-label">System Design</div>
+        <h2 class="section-title">Architecture</h2>
+        <p class="section-subtitle">
+          LangGraph agents on Gemma 4 (KoboldCpp), orchestrated by FastAPI with safety filtering, competing over a live Ubuntu VM inside isolated Docker networks.
+        </p>
+      </div>
+      <div class="architecture-wrap reveal-on-scroll">
+        <pre class="mermaid">
+graph TB
+    subgraph Host["Host Machine (GPU Server — K80 24GB)"]
+        KC[KoboldCpp Inference Server&lt;br/&gt;Gemma 4 E4B Q4_K_M&lt;br/&gt;OpenAI-compatible API&lt;br/&gt;Port 5001]
+    end
+    subgraph DockerCompose["Docker Compose Environment"]
+        subgraph red_net["red-net (internal, isolated)"]
+            RA[red-agent&lt;br/&gt;Python / LangGraph&lt;br/&gt;observe → reason → act]
+        end
+        subgraph blue_net["blue-net (internal, isolated)"]
+            BA[blue-agent&lt;br/&gt;Python / LangGraph&lt;br/&gt;observe → reason → act]
+        end
+        subgraph orchestrator_net["orchestrator-net (bridge)"]
+            ORC[Orchestrator&lt;br/&gt;FastAPI&lt;br/&gt;Port 8000]
+            SF[Safety Filter&lt;br/&gt;Blocklist Validator&lt;br/&gt;Command Interceptor]
+            DB[(SQLite DB&lt;br/&gt;game_log.db&lt;br/&gt;scores + events)]
+            BG[battleground&lt;br/&gt;Ubuntu 22.04&lt;br/&gt;Vulnerable Services&lt;br/&gt;SSH Port 22]
+        end
+    end
+    RA -- "POST /execute (skill name + args)" --> ORC
+    BA -- "POST /execute (skill name + args)" --> ORC
+    RA -- "GET /state" --> ORC
+    BA -- "GET /state" --> ORC
+    RA -. "LLM inference (HTTP)" .-> KC
+    BA -. "LLM inference (HTTP)" .-> KC
+    ORC --> SF
+    SF -- "Validated command" --> BG
+    SF -- "Blocked (log only)" --> DB
+    ORC -- "Score + event log" --> DB
+    BG -- "Command output" --> ORC
+    ORC -- "Result + new state" --> RA
+    ORC -- "Result + new state" --> BA
+    style red_net fill:#2a1515,stroke:#cc0000,color:#e0e0e0
+    style blue_net fill:#151525,stroke:#0055cc,color:#e0e0e0
+    style orchestrator_net fill:#152215,stroke:#006600,color:#e0e0e0
+    style Host fill:#25251a,stroke:#999900,color:#e0e0e0
+    style SF fill:#25201a,stroke:#cc6600,color:#e0e0e0
+    style DB fill:#1a1a25,stroke:#6666cc,color:#e0e0e0
+        </pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Game Simulation ════ -->
+  <section class="section" id="simulation">
+    <div class="container">
+      <div class="section-header reveal-on-scroll">
+        <div class="section-label">Live Replay</div>
+        <h2 class="section-title">Battle Simulation</h2>
+        <p class="section-subtitle">
+          Watch the AI agents clash in real-time. Red Team attacks, Blue Team defends.
+          Commands are executed character by character on terminal panels.
+        </p>
+      </div>
+
+      <!-- Controls -->
+      <div class="sim-controls reveal-on-scroll">
+        <button class="play-btn" id="play-btn">
+          <span class="btn-icon">&#9654;</span> Play
+        </button>
+        <div class="speed-controls">
+          <button class="speed-btn active" data-speed="1">1x</button>
+          <button class="speed-btn" data-speed="2">2x</button>
+          <button class="speed-btn" data-speed="4">4x</button>
+        </div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="sim-status reveal-on-scroll">
+        <div class="status-item">
+          <span class="label">Phase</span>
+          <span class="phase-value phase-setup" id="phase-indicator">SETUP</span>
+        </div>
+        <div class="status-item">
+          <span class="label">Turn</span>
+          <span id="turn-counter">Turn 0 / 16</span>
+        </div>
+      </div>
+
+      <!-- Kill chain tracker -->
+      <div class="kill-chain-wrap reveal-on-scroll">
+        <span class="kc-title">Red Kill Chain</span>
+        <div id="kill-chain"></div>
+      </div>
+
+      <!-- Battlefield: Red terminal | Scoreboard | Blue terminal -->
+      <div class="sim-battlefield reveal-on-scroll">
+        <!-- Red terminal -->
+        <div class="terminal-panel red">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span></span><span></span><span></span></div>
+            <div class="terminal-title">red-agent // attacker</div>
+          </div>
+          <div class="terminal-body" id="red-terminal-body"></div>
+        </div>
+
+        <!-- Scoreboard -->
+        <div class="scoreboard">
+          <div class="score-title">Scoreboard</div>
+          <div class="score-team">
+            <div class="score-team-label red">Red Team</div>
+            <div class="score-value red" id="red-score">0</div>
+          </div>
+          <div class="vs-divider">VS</div>
+          <div class="score-team">
+            <div class="score-team-label blue">Blue Team</div>
+            <div class="score-value blue" id="blue-score">0</div>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar red-bar" id="red-bar"></div>
+            <div class="score-bar blue-bar" id="blue-bar"></div>
+          </div>
+        </div>
+
+        <!-- Blue terminal -->
+        <div class="terminal-panel blue">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span></span><span></span><span></span></div>
+            <div class="terminal-title">blue-agent // defender</div>
+          </div>
+          <div class="terminal-body" id="blue-terminal-body"></div>
+        </div>
+      </div>
+
+      <!-- Conclusion banner -->
+      <div class="conclusion-banner" id="conclusion-banner">
+        <div class="conclusion-winner">Blue Team Wins</div>
+        <div class="conclusion-reason">Blue team achieved full lockout — all red team access revoked</div>
+        <div class="conclusion-scores">
+          <span class="red">Red: 65 pts</span>
+          <span class="blue">Blue: 145 pts</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Skills Reference ════ -->
+  <section class="section" id="skills">
+    <div class="container">
+      <div class="section-header reveal-on-scroll">
+        <div class="section-label">Agent Capabilities</div>
+        <h2 class="section-title">Skill Library</h2>
+        <p class="section-subtitle">
+          Each agent selects from a fixed skill library. The LLM decides which skill to invoke each turn based on observed state.
+        </p>
+      </div>
+
+      <div class="skills-grid reveal-on-scroll">
+        <!-- Red skills -->
+        <div class="skills-panel red">
+          <div class="skills-panel-header">Red Team &mdash; 8 Skills</div>
+          <table class="skills-table">
+            <thead>
+              <tr><th>Skill</th><th>Category</th><th>Description</th></tr>
+            </thead>
+            <tbody id="red-skills-body"></tbody>
+          </table>
+        </div>
+
+        <!-- Blue skills -->
+        <div class="skills-panel blue">
+          <div class="skills-panel-header">Blue Team &mdash; 10 Skills</div>
+          <table class="skills-table">
+            <thead>
+              <tr><th>Skill</th><th>Category</th><th>Description</th></tr>
+            </thead>
+            <tbody id="blue-skills-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Scoring ════ -->
+  <section class="section" id="scoring">
+    <div class="container">
+      <div class="section-header reveal-on-scroll">
+        <div class="section-label">Point System</div>
+        <h2 class="section-title">Scoring Events</h2>
+        <p class="section-subtitle">
+          The orchestrator awards points based on the security significance of each action.
+        </p>
+      </div>
+
+      <div class="scoring-table-wrap reveal-on-scroll">
+        <table class="scoring-table">
+          <thead>
+            <tr><th>Event</th><th>Points</th><th>Team</th><th>Description</th></tr>
+          </thead>
+          <tbody id="scoring-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Narrative Summary ════ -->
+  <section class="section" id="narrative">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Post-Game Analysis</div>
+        <h2 class="section-title">Game Narrative</h2>
+        <p class="section-subtitle">
+          Auto-generated after the simulation completes.
+        </p>
+      </div>
+
+      <div class="narrative-terminal" id="narrative-text">
+        Waiting for simulation to complete...
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ Footer ════ -->
+  <footer class="site-footer">
+    <a href="https://github.com/LVXCAS/CyberSec-Mini-Capstone" class="footer-github" aria-label="GitHub Repository">
+      <svg viewBox="0 0 24 24" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+    </a>
+    <span class="footer-credits">Made by <strong>Lucas Oghigian</strong> &amp; <strong>Alex Auger</strong></span>
+    <span class="footer-course">Cybersecurity Capstone — April 2026</span>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/game-data.js"></script>
+  <script src="js/simulation.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
